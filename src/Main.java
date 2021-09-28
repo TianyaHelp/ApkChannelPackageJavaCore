@@ -12,82 +12,84 @@ import channel.data.Apk;
 
 public class Main {
 
-	public static void main(String[] args) {
-		String mode = null;
-		if (args != null && args.length > 0) {
-			mode = args[0];
-		}
-		if (mode == null) {
-			System.out.println("=======È±ÉÙ²ÎÊımode======");
-		}
-		switch (mode.trim()) {
-		case "1":
-			// ³¢ÊÔµ¥¸ö´ò°ü
-			File baseV2Apk = new File("./origin/app-debug_v1.apk");
-			String channel = "xiaomi-black";
-			try {
-				test(baseV2Apk, channel);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			break;
-		case "2":
-			// ³¢ÊÔ¶à¸ö´ò°ü
-			ChannelExt ext = new ChannelExt();
-			ext.setBaseApkPath("./origin/app-debug_v2.apk");
-			ext.setChannelConfigPath("./flavorConfig/channel.txt");
-			ext.setThemeConfigPath("./flavorConfig/theme.txt");
-			ext.setOutDir("./output");
-			try {
-				testMultiPackage(ext);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			break;
-		default:
-			System.out.println("=======modeÖ»¿ÉÒÔÊÇ1ºÍ2======");
-			break;
-		}
+    public static void main(String[] args) {
+        String mode = null;
+        if (args != null && args.length > 0) {
+            mode = args[0];
+        }
+        if (mode == null) {
+            System.out.println("=======ç¼ºå°‘å‚æ•°mode======");
+            mode = "2";
+        }
+        switch (mode.trim()) {
+            case "1":
+                // å°è¯•å•ä¸ªæ‰“åŒ…
+                File baseV2Apk = new File("./origin/app-debug_v1.apk");
+                String channel = "xiaomi-black";
+                try {
+                    test(baseV2Apk, channel);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "2":
+                // å°è¯•å¤šä¸ªæ‰“åŒ…
+                ChannelExt ext = new ChannelExt();
+                ext.setBaseApkPath("./origin/app-release.apk");
+                ext.setChannelConfigPath("./flavorConfig/channel.txt");
+                ext.setThemeConfigPath("./flavorConfig/theme.txt");
+                ext.setOutDir("./output");
+                ext.setVersion(mode);
+                try {
+                    testMultiPackage(ext);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            default:
+                System.out.println("=======modeåªå¯ä»¥æ˜¯1å’Œ2======");
+                break;
+        }
 
-	}
+    }
 
-	private static void test(File baseApk, String channel) throws Exception {
-		ChannelHelper.reset();
-		System.out.println("ĞèÒª×¡ÈëµÄÇşµÀĞÅÏ¢ÊÇ:" + channel);
-		long l = System.currentTimeMillis();
-		File outDir = new File("./output");// ´´½¨Êä³öÄ¿Â¼
-		outDir.mkdirs();// Éú³ÉÊä³öÄ¿Â¼
-		String name = baseApk.getName();
-		name = name.substring(0, name.lastIndexOf("."));
-		Apk apk = ApkParser.parser(baseApk);// °ÑapkÎÄ¼ş½âÎö³ÉÎÒÃÇ×Ô¶¨ÒåµÄApkÀàµÄ¶ÔÏó
-		File file = new File(outDir, name + "-" + channel + ".apk");// Éú³ÉAPK
-		ApkBuilder.generateChannel(channel, apk, file);
-		System.out.println("×¢ÈëÇşµÀĞÅÏ¢ ºÄÊ±£º" + (System.currentTimeMillis() - l) + " MS");
-		System.out.println("======================");
-		System.out.println("½â¶ÁÇşµÀĞÅÏ¢:" + ChannelHelper.getChannel(file.getAbsolutePath()));
-	}
+    private static void test(File baseApk, String channel) throws Exception {
+        ChannelHelper.reset();
+        System.out.println("éœ€è¦ä½å…¥çš„æ¸ é“ä¿¡æ¯æ˜¯:" + channel);
+        long l = System.currentTimeMillis();
+        File outDir = new File("./output");// åˆ›å»ºè¾“å‡ºç›®å½•
+        outDir.mkdirs();// ç”Ÿæˆè¾“å‡ºç›®å½•
+        String name = baseApk.getName();
+        name = name.substring(0, name.lastIndexOf("."));
+        Apk apk = ApkParser.parser(baseApk);// æŠŠapkæ–‡ä»¶è§£ææˆæˆ‘ä»¬è‡ªå®šä¹‰çš„Apkç±»çš„å¯¹è±¡
+        File file = new File(outDir, name + "-" + channel + ".apk");// ç”ŸæˆAPK
+        ApkBuilder.generateChannel(channel, apk, file);
+        System.out.println("æ³¨å…¥æ¸ é“ä¿¡æ¯ è€—æ—¶ï¼š" + (System.currentTimeMillis() - l) + " MS");
+        System.out.println("======================");
+        System.out.println("è§£è¯»æ¸ é“ä¿¡æ¯:" + ChannelHelper.getChannel(file.getAbsolutePath()));
+    }
 
-	private static void testMultiPackage(ChannelExt channelExt) throws Exception {
-		System.out.println("==============½øÈëÇşµÀ°ü´ò°üÂß¼­===============" + channelExt);
-		// ¶ÁÈ¡ÅäÖÃºÃµÄ²ÎÊı
-		if (channelExt == null || !channelExt.isOk()) {
-			System.out.println(" Ã»ÓĞÈ¡µÃ±ØĞëµÄ²ÎÊı...");
-			return;
-		}
-		File baseFile = new File(channelExt.getBaseApkPath());
-		File channelConfigFile = new File(channelExt.getChannelConfigPath());
-		File outDirFile = new File(channelExt.getOutDir());
-		File themeConfigFile = new File(channelExt.getThemeConfigPath());
-		outDirFile.mkdirs();
-		List<String> channelConfigs = FlavorUtil.getStrListFromFile(channelConfigFile);
-		List<String> themeConfigs = FlavorUtil.getStrListFromFile(themeConfigFile);
-		// È»ºó¼ÆËã³öÁ½¸ölistµÄ³Ë»ı(Êı×éAÓĞ4¸öÔªËØ£¬Êı×éBÓĞ5¸öÔªËØ£¬ËùÒÔ³Ë»ıÒ»¹²ÓĞ20¸öÔªËØ)
-		List<String> finalFlavors = FlavorUtil.calculateListProduct(channelConfigs, themeConfigs);
-		for (String flavorName : finalFlavors) {
-			Apk apk = ApkParser.parser(baseFile);// 2¡¢½âÎöAPK(zipÎÄ¼ş)
-			File file = new File(outDirFile, "app-debug-" + flavorName + ".apk");
-			ApkBuilder.generateChannel(flavorName, apk, file);// 3¡¢Éú³ÉAPK
-		}
-	}
+    private static void testMultiPackage(ChannelExt channelExt) throws Exception {
+        System.out.println("==============è¿›å…¥æ¸ é“åŒ…æ‰“åŒ…é€»è¾‘===============" + channelExt);
+        // è¯»å–é…ç½®å¥½çš„å‚æ•°
+        if (channelExt == null || !channelExt.isOk()) {
+            System.out.println(" æ²¡æœ‰å–å¾—å¿…é¡»çš„å‚æ•°...");
+            return;
+        }
+        File baseFile = new File(channelExt.getBaseApkPath());
+        File channelConfigFile = new File(channelExt.getChannelConfigPath());
+        File outDirFile = new File(channelExt.getOutDir());
+        File themeConfigFile = new File(channelExt.getThemeConfigPath());
+        outDirFile.mkdirs();
+        List<String> channelConfigs = FlavorUtil.getStrListFromFile(channelConfigFile);
+        List<String> themeConfigs = FlavorUtil.getStrListFromFile(themeConfigFile);
+        // ç„¶åè®¡ç®—å‡ºä¸¤ä¸ªlistçš„ä¹˜ç§¯(æ•°ç»„Aæœ‰4ä¸ªå…ƒç´ ï¼Œæ•°ç»„Bæœ‰5ä¸ªå…ƒç´ ï¼Œæ‰€ä»¥ä¹˜ç§¯ä¸€å…±æœ‰20ä¸ªå…ƒç´ )
+        List<String> finalFlavors = FlavorUtil.calculateListProduct(channelConfigs, themeConfigs);
+        for (String flavorName : finalFlavors) {
+            Apk apk = ApkParser.parser(baseFile);// 2ã€è§£æAPK(zipæ–‡ä»¶)
+            File file = new File(outDirFile, "app-debug-" + flavorName + "_v" + channelExt.getVersion() + ".apk");
+            ApkBuilder.generateChannel(flavorName, apk, file);// 3ã€ç”ŸæˆAPK
+        }
+    }
 
 }

@@ -7,6 +7,16 @@ public class ChannelExt {
     private String themeConfigPath;
     private String outDir;
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    private String version;
+
     public boolean isOk() {
         return baseApkPath != null && channelConfigPath != null && outDir != null && themeConfigPath != null;
     }
